@@ -119,6 +119,21 @@ bool Application::GetBoolOption(CommandLineOption op)
     return false;
 }
 
+bool Application::IsOptionSet(CommandLineOption op)
+{
+    if (m_cliOpts.find(op) == m_cliOpts.end())
+        return false;
+
+    CommandLineOptionValue &val = m_cliOpts[op];
+
+    if (val.type == CLIOPTYPE_INT && val.value.asInt == UNDEFINED_INT)
+        return false;
+    else if (val.type == CLIOPTYPE_STRING && strcmp(val.value.asString, UNDEFINED_STR) == 0)
+        return false;
+
+    return true;
+}
+
 bool Application::ParseCommandLineOpts(int argc, char** argv)
 {
     int i;

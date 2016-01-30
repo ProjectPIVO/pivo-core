@@ -33,6 +33,8 @@ class Application
         int64_t GetIntOption(CommandLineOption op);
         // Get command line boolean option
         bool GetBoolOption(CommandLineOption op);
+        // Is command line option set? Applicable only to string and int arguments
+        bool IsOptionSet(CommandLineOption op);
 
     protected:
         // protected singleton constructor

@@ -1,5 +1,7 @@
 #include "General.h"
 #include "Application.h"
+#include "Log.h"
+#include "Version.h"
 
 Application::Application()
 {
@@ -14,7 +16,7 @@ Application::~Application()
 void Application::InitCommandLineOpts()
 {
     // In this method, we define accepted command line parameters
-    // and set them default values, optinally aliases
+    // and set them default values, optionally aliases
 
     AddDefaultOptionString("--input-module", CLIOPT_INPUT_MODULE, UNDEFINED_STR);
     AddOptionNameAlias("-im", CLIOPT_INPUT_MODULE);
@@ -25,8 +27,7 @@ void Application::InitCommandLineOpts()
     AddDefaultOptionString("--log-file", CLIOPT_LOG_FILE, UNDEFINED_STR);
     AddOptionNameAlias("-lf", CLIOPT_LOG_FILE);
 
-    // TODO: implement log, define appropriate levels
-    AddDefaultOptionInt("--log-level", CLIOPT_LOG_LEVEL, 0);
+    AddDefaultOptionInt("--log-level", CLIOPT_LOG_LEVEL, LOG_ERROR);
     AddOptionNameAlias("-ll", CLIOPT_LOG_LEVEL);
 
     AddDefaultOptionString("--input", CLIOPT_INPUT_PATH, UNDEFINED_STR);
@@ -39,16 +40,51 @@ void Application::InitCommandLineOpts()
     AddOptionNameAlias("-s", CLIOPT_SILENT);
 }
 
+void printProgramInfo()
+{
+    std::cout << "PIVO - Profiler-Independent Visual Output, ";
+    std::cout << "version " << PIVO_CORE_VERSION_MAJOR << "." << PIVO_CORE_VERSION_MINOR;
+
+    if (strlen(PIVO_CORE_VERSION_NOTE) > 0)
+        std::cout << "-" << PIVO_CORE_VERSION_NOTE << std::endl;
+    else
+        std::cout << std::endl;
+
+    std::cout << "Copyright (c) 2015-2016, Martin Ubl, ublm@students.zcu.cz" << std::endl;
+    std::cout << "University of West Bohemia, Faculty of Applied Sciences" << std::endl << "Department of Computer Science and Engineering" << std::endl;
+
+    std::cout << std::endl;
+}
+
 bool Application::Init(int argc, char** argv)
 {
-    // TODO: init log, at first, output everything to console
+    // init log to display all errors for now
+    // later we will reconfigure it to take command line parameters seriously
+    sLog->SetSilent(false);
+    sLog->SetLogLevel(LOG_ERROR);
 
+    // init default command line parameter values
     InitCommandLineOpts();
 
+    // load real command line parameters
     if (!ParseCommandLineOpts(argc, argv))
         return false;
 
-    // TODO: init log file, redirect log output to file
+    // if not in silent mode, print program info (visible in all modes)
+    if (!GetBoolOption(CLIOPT_SILENT))
+        printProgramInfo();
+
+    // set log parameters retained from command line
+    sLog->SetSilent(GetBoolOption(CLIOPT_SILENT));
+    sLog->SetLogLevel((int)GetIntOption(CLIOPT_LOG_LEVEL));
+
+    if (IsOptionSet(CLIOPT_LOG_FILE))
+    {
+        if (sLog->SetLogFile(GetStringOption(CLIOPT_LOG_FILE).c_str()))
+            sLog->Info("Using log file %s", sLog->GetLogFile());
+        else
+            sLog->Error("Could not open file %s for writing!", GetStringOption(CLIOPT_LOG_FILE).c_str());
+    }
 
     // TODO: verify input file has been specified
 
