@@ -6,6 +6,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
     ADD_DEFINITIONS(--std=c++11)
 ENDIF()
 
+# Turn off CRT secure warnings
+ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
+
 # Output directory - binary files (executables, libraries, ..) will be placed here
 SET(output_dir "bin")
 
