@@ -52,3 +52,8 @@ ENDFOREACH()
 
 # core part is also executable - add executable to be built from these files
 ADD_EXECUTABLE (pivo-core ${corefiles})
+
+# link dynamic library handling routines
+IF(CMAKE_COMPILER_IS_GNUCXX)
+    TARGET_LINK_LIBRARIES(pivo-core dl)
+ENDIF()

@@ -16,15 +16,16 @@ enum CommandLineOption
     MAX_CLIOPT
 };
 
-#define INPUT_MODULE_NAME_PREFIX "pivo-input-"
-#define OUTPUT_MODULE_NAME_PREFIX "pivo-output-"
-
 #ifdef _WIN32
 #define SHARED_LIBRARY_SUFFIX ".dll"
 #define DLL_INSTANCE HMODULE
+#define INPUT_MODULE_NAME_PREFIX "pivo-input-"
+#define OUTPUT_MODULE_NAME_PREFIX "pivo-output-"
 #else
 #define SHARED_LIBRARY_SUFFIX ".so"
 #define DLL_INSTANCE void*
+#define INPUT_MODULE_NAME_PREFIX "libpivo-input-"
+#define OUTPUT_MODULE_NAME_PREFIX "libpivo-output-"
 #endif
 
 class InputModule;

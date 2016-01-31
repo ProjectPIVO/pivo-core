@@ -103,20 +103,28 @@ bool Application::Init(int argc, char** argv)
 
 bool Application::CreateInputModuleHandle()
 {
-    // TODO: format module name
-    // TODO: WinAPI / dlopen,dlsym
+    // TODO: allow specifying module path?
+    // TODO: search in both local and "global" library search paths (on linux use ./libname.so and if failed, libname.so)
 
-    std::string inputModuleName = std::string(INPUT_MODULE_NAME_PREFIX) + GetStringOption(CLIOPT_INPUT_MODULE);
+    std::string inputModuleName = std::string("./") + std::string(INPUT_MODULE_NAME_PREFIX) + GetStringOption(CLIOPT_INPUT_MODULE);
     std::string inputModuleFile = inputModuleName + std::string(SHARED_LIBRARY_SUFFIX);
 
+#ifdef _WIN32
     m_inputModuleHandle = LoadLibrary(inputModuleFile.c_str());
+#else
+    m_inputModuleHandle = dlopen(inputModuleFile.c_str(), RTLD_LAZY);
+#endif
     if (!m_inputModuleHandle)
     {
         sLog->Error("Could not load module %s!", inputModuleName.c_str());
         return false;
     }
 
+#ifdef _WIN32
     RegisterLogFunc registerLogDllFunc = (RegisterLogFunc)GetProcAddress(m_inputModuleHandle, "RegisterLogger");
+#else
+    RegisterLogFunc registerLogDllFunc = (RegisterLogFunc)dlsym(m_inputModuleHandle, "RegisterLogger");
+#endif
     if (!registerLogDllFunc)
     {
         sLog->Error("Input module does not recognize RegisterLogger function!");
@@ -125,7 +133,11 @@ bool Application::CreateInputModuleHandle()
 
     registerLogDllFunc(DllLogFunc);
 
+#ifdef _WIN32
     InputModuleCreateFunc createInputModuleDllFunc = (InputModuleCreateFunc)GetProcAddress(m_inputModuleHandle, "CreateInputModule");
+#else
+    InputModuleCreateFunc createInputModuleDllFunc = (InputModuleCreateFunc)dlsym(m_inputModuleHandle, "CreateInputModule");
+#endif
     if (!createInputModuleDllFunc)
     {
         sLog->Error("Input module does not recognize CreateInputModule function!");

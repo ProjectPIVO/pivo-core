@@ -6,12 +6,14 @@
 #include <list>
 #include <map>
 #include <string>
+#include <cstring>
 #include <limits.h>
 
 #ifdef _WIN32
 #include <Windows.h>
 #else
 #include <unistd.h>
+#include <dlfcn.h>
 #endif
 
 #define UNDEFINED_STR "__undefined__"
