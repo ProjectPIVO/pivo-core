@@ -16,6 +16,22 @@ enum CommandLineOption
     MAX_CLIOPT
 };
 
+#define INPUT_MODULE_NAME_PREFIX "pivo-input-"
+#define OUTPUT_MODULE_NAME_PREFIX "pivo-output-"
+
+#ifdef _WIN32
+#define SHARED_LIBRARY_SUFFIX ".dll"
+#define DLL_INSTANCE HMODULE
+#else
+#define SHARED_LIBRARY_SUFFIX ".so"
+#define DLL_INSTANCE void*
+#endif
+
+class InputModule;
+
+typedef void(*RegisterLogFunc)(void(*)(int, const char*, ...));
+typedef InputModule*(*InputModuleCreateFunc)();
+
 class Application
 {
     friend class Singleton<Application>;
@@ -71,11 +87,20 @@ class Application
         // Parse command line options, fill maps
         bool ParseCommandLineOpts(int argc, char** argv);
 
+        // Create library handle
+        bool CreateInputModuleHandle();
+
     private:
         // map of command line options
         std::map<CommandLineOption, CommandLineOptionValue> m_cliOpts;
         // map of associated strings with command line option enum values
         std::map<std::string, CommandLineOption> m_cliOptNames;
+
+        // Input module instance
+        InputModule* m_inputModule;
+
+        // Input module handle
+        DLL_INSTANCE m_inputModuleHandle;
 };
 
 #define sApplication Singleton<Application>::instance()

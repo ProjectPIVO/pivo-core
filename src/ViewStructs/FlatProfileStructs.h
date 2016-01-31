@@ -1,0 +1,6 @@
+#ifndef PIVO_FLAT_PROFILE_STRUCTS_H
+#define PIVO_FLAT_PROFILE_STRUCTS_H
+
+//
+
+#endif

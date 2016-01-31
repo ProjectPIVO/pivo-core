@@ -1,4 +1,5 @@
 #include "General.h"
+#include "InputModule.h"
 #include "Application.h"
 #include "Log.h"
 #include "Version.h"
@@ -94,10 +95,56 @@ bool Application::Init(int argc, char** argv)
 
     // TODO: verify presence of input and output modules
 
+    if (!CreateInputModuleHandle())
+        return false;
+
+    return true;
+}
+
+bool Application::CreateInputModuleHandle()
+{
+    // TODO: format module name
+    // TODO: WinAPI / dlopen,dlsym
+
+    std::string inputModuleName = std::string(INPUT_MODULE_NAME_PREFIX) + GetStringOption(CLIOPT_INPUT_MODULE);
+    std::string inputModuleFile = inputModuleName + std::string(SHARED_LIBRARY_SUFFIX);
+
+    m_inputModuleHandle = LoadLibrary(inputModuleFile.c_str());
+    if (!m_inputModuleHandle)
+    {
+        sLog->Error("Could not load module %s!", inputModuleName.c_str());
+        return false;
+    }
+
+    RegisterLogFunc registerLogDllFunc = (RegisterLogFunc)GetProcAddress(m_inputModuleHandle, "RegisterLogger");
+    if (!registerLogDllFunc)
+    {
+        sLog->Error("Input module does not recognize RegisterLogger function!");
+        return false;
+    }
+
+    registerLogDllFunc(DllLogFunc);
+
+    InputModuleCreateFunc createInputModuleDllFunc = (InputModuleCreateFunc)GetProcAddress(m_inputModuleHandle, "CreateInputModule");
+    if (!createInputModuleDllFunc)
+    {
+        sLog->Error("Input module does not recognize CreateInputModule function!");
+        return false;
+    }
+
+    m_inputModule = createInputModuleDllFunc();
+    if (!m_inputModule)
+    {
+        sLog->Error("Could not create InputModule instance!");
+        return false;
+    }
+
     return true;
 }
 
 int Application::Run()
 {
+    m_inputModule->LoadFile(GetStringOption(CLIOPT_INPUT_PATH).c_str());
+
     return 0;
 }

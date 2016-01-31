@@ -92,6 +92,14 @@ void Log::PerformLog(LogLevel level, const char* str)
         std::cout << str << std::endl;
 }
 
+void DllLogFunc(int level, const char* str, ...)
+{
+    char buf[2048];
+    FORMAT_LOG_ARGS(buf, 2048);
+
+    sLog->PerformLog((LogLevel)level, buf);
+}
+
 void Log::Error(const char *str, ...)
 {
     char buf[2048];

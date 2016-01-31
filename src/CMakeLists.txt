@@ -24,6 +24,12 @@ FOREACH(subdir ${SUBDIRS})
         ${subdir}
     )
 
+    GET_FILENAME_COMPONENT(abspath ${subdir} REALPATH)
+
+    # Set include directories to global property
+	GET_PROPERTY(core_includes GLOBAL PROPERTY core_include_dirs)
+    SET_PROPERTY(GLOBAL PROPERTY core_include_dirs ${core_includes} ${abspath})
+
     # Search for all source and header files, and append them
     FILE(GLOB tmp_src
         ${subdir}/*.h

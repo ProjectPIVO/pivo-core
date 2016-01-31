@@ -16,6 +16,8 @@ enum LogLevel
     LOG_DEBUG = 5,
 };
 
+void DllLogFunc(int level, const char* str, ...);
+
 class Log
 {
     friend class Singleton<Log>;
@@ -48,12 +50,12 @@ class Log
         // Debug log
         void Debug(const char *str, ...);
 
+        // internal logging method
+        void PerformLog(LogLevel level, const char* str);
+
     protected:
         // protected singleton constructor
         Log();
-
-        // internal logging method
-        void PerformLog(LogLevel level, const char* str);
 
     private:
         // is console output disabled?
