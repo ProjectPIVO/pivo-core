@@ -3,6 +3,12 @@
 
 #define NO_CLASS -1
 
+struct ClassEntry
+{
+    // Class/struct name
+    const char* name;
+};
+
 struct FunctionEntry
 {
     // Function/method name
