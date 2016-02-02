@@ -34,6 +34,9 @@ void Application::InitCommandLineOpts()
     AddDefaultOptionString("--input", CLIOPT_INPUT_PATH, UNDEFINED_STR);
     AddOptionNameAlias("-i", CLIOPT_INPUT_PATH);
 
+    AddDefaultOptionString("--binary", CLIOPT_INPUT_BINARY_PATH, "");
+    AddOptionNameAlias("-b", CLIOPT_INPUT_BINARY_PATH);
+
     AddDefaultOptionString("--output", CLIOPT_OUTPUT_PATH, UNDEFINED_STR);
     AddOptionNameAlias("-o", CLIOPT_OUTPUT_PATH);
 
@@ -156,7 +159,7 @@ bool Application::CreateInputModuleHandle()
 
 int Application::Run()
 {
-    if (!m_inputModule->LoadFile(GetStringOption(CLIOPT_INPUT_PATH).c_str()))
+    if (!m_inputModule->LoadFile(GetStringOption(CLIOPT_INPUT_PATH).c_str(), GetStringOption(CLIOPT_INPUT_BINARY_PATH).c_str()))
         return 1;
 
     std::vector<ClassEntry> classTable;

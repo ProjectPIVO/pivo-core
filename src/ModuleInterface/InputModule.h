@@ -12,7 +12,7 @@ class InputModule
         // Reports module features
         virtual void ReportFeatures(IMF_SET &set) = 0;
         // Loads file into memory for future processing, return true on success
-        virtual bool LoadFile(const char* file) = 0;
+        virtual bool LoadFile(const char* file, const char* binaryFile) = 0;
 
         // Retrieves class table loaded from file
         virtual void GetClassTable(std::vector<ClassEntry> &dst) = 0;
