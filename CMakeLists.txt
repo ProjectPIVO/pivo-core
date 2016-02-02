@@ -3,7 +3,7 @@ PROJECT(PIVO)
 
 # Use C++11 standard for building
 IF(CMAKE_COMPILER_IS_GNUCXX)
-    ADD_DEFINITIONS(--std=c++11)
+    ADD_DEFINITIONS(--std=c++11 -g)
 ENDIF()
 
 # Turn off CRT secure warnings

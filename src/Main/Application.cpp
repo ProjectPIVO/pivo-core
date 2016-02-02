@@ -169,14 +169,14 @@ int Application::Run()
     m_inputModule->GetFunctionTable(funcTable);
 
     for (int i = 0; i < classTable.size(); i++)
-        sLog->Debug("Class %i: %s", i, classTable[i].name);
+        sLog->Debug("Class %i: %s", i, classTable[i].name.c_str());
 
     for (int i = 0; i < funcTable.size(); i++)
     {
         if (funcTable[i].classId == NO_CLASS)
-            sLog->Debug("Function %i: %s", i, funcTable[i].name);
+            sLog->Debug("Function %i: %s", i, funcTable[i].name.c_str());
         else if (funcTable[i].classId < classTable.size())
-            sLog->Debug("Method %i: %s::%s", i, classTable[funcTable[i].classId].name, funcTable[i].name);
+            sLog->Debug("Method %i: %s::%s", i, classTable[funcTable[i].classId].name.c_str(), funcTable[i].name.c_str());
     }
 
     return 0;

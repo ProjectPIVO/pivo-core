@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <list>
 #include <map>
+#include <vector>
 #include <string>
 #include <cstring>
 #include <limits.h>
@@ -15,7 +16,7 @@
 #else
 #include <unistd.h>
 #include <dlfcn.h>
-#define DLL_EXPORT_API 
+#define DLL_EXPORT_API
 #endif
 
 #ifndef nmax
