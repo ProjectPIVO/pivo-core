@@ -5,6 +5,7 @@
 
 #include "UnitIdentifiers.h"
 #include "InputModuleFeatures.h"
+#include "FlatProfileStructs.h"
 
 class InputModule
 {
@@ -18,6 +19,9 @@ class InputModule
         virtual void GetClassTable(std::vector<ClassEntry> &dst) = 0;
         // Retrieves function table loaded from file
         virtual void GetFunctionTable(std::vector<FunctionEntry> &dst) = 0;
+
+        // Retrieves flat profile data
+        virtual void GetFlatProfileData(std::vector<FlatProfileRecord> &dst) = 0;
 
     protected:
         //
