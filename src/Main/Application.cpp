@@ -1,12 +1,15 @@
 #include "General.h"
 #include "InputModule.h"
+#include "UnitIdentifiers.h"
+#include "FlatProfileStructs.h"
+#include "NormalizedData.h"
 #include "Application.h"
 #include "Log.h"
 #include "Version.h"
 
 Application::Application()
 {
-    //
+    m_data = nullptr;
 }
 
 Application::~Application()
@@ -101,6 +104,8 @@ bool Application::Init(int argc, char** argv)
     if (!CreateInputModuleHandle())
         return false;
 
+    // TODO: create output module handle
+
     return true;
 }
 
@@ -159,22 +164,13 @@ bool Application::CreateInputModuleHandle()
 
 int Application::Run()
 {
-    if (!m_inputModule->LoadFile(GetStringOption(CLIOPT_INPUT_PATH).c_str(), GetStringOption(CLIOPT_INPUT_BINARY_PATH).c_str()))
-        return 1;
+    InitInput();
 
-    IMF_SET inputModuleFeatures;
-    m_inputModule->ReportFeatures(inputModuleFeatures);
+    GatherData();
 
-    std::vector<ClassEntry> classTable;
-    std::vector<FunctionEntry> funcTable;
+    // TODO: construct some kind of structure with all datas
 
-    m_inputModule->GetClassTable(classTable);
-    m_inputModule->GetFunctionTable(funcTable);
-
-    std::vector<FlatProfileRecord> flatProfileData;
-
-    if (IMF_ISSET(inputModuleFeatures, IMF_FLAT_PROFILE))
-        m_inputModule->GetFlatProfileData(flatProfileData);
+    // TODO: pass the structure to output module
 
     return 0;
 }

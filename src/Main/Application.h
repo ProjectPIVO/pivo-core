@@ -4,6 +4,11 @@
 #include "Singleton.h"
 #include "CLIOptions.h"
 
+#include "UnitIdentifiers.h"
+#include "InputModuleFeatures.h"
+#include "FlatProfileStructs.h"
+#include "NormalizedData.h"
+
 enum CommandLineOption
 {
     CLIOPT_INPUT_MODULE = 0,
@@ -92,17 +97,35 @@ class Application
         // Create library handle
         bool CreateInputModuleHandle();
 
+        // Initializes input module, loads supplied file, etc
+        int InitInput();
+        // Gathers data from input module - different views, metadata
+        int GatherData();
+        // Prepares output structures, analyzes gatehered data and creates data for specific views
+        int PrepareOutput();
+        // Sends processed structures to output module for generating output
+        int ProceedOutput();
+
     private:
         // map of command line options
         std::map<CommandLineOption, CommandLineOptionValue> m_cliOpts;
         // map of associated strings with command line option enum values
         std::map<std::string, CommandLineOption> m_cliOptNames;
 
+        // vector of all classes present in application
+        std::vector<ClassEntry> m_classTable;
+        // vector of all functions (methods) present in application
+        std::vector<FunctionEntry> m_functionTable;
+
         // Input module instance
         InputModule* m_inputModule;
-
         // Input module handle
         DLL_INSTANCE m_inputModuleHandle;
+        // Input module reported features
+        IMF_SET m_inputModuleFeatures;
+
+        // data prepared to be sent to output module
+        NormalizedData* m_data;
 };
 
 #define sApplication Singleton<Application>::instance()
