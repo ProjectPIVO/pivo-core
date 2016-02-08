@@ -1,5 +1,6 @@
 #include "General.h"
 #include "InputModule.h"
+#include "OutputModule.h"
 #include "UnitIdentifiers.h"
 #include "FlatProfileStructs.h"
 #include "NormalizedData.h"
@@ -104,7 +105,8 @@ bool Application::Init(int argc, char** argv)
     if (!CreateInputModuleHandle())
         return false;
 
-    // TODO: create output module handle
+    if (!CreateOutputModuleHandle())
+        return false;
 
     return true;
 }
@@ -162,15 +164,70 @@ bool Application::CreateInputModuleHandle()
     return true;
 }
 
+bool Application::CreateOutputModuleHandle()
+{
+    // TODO: allow specifying module path?
+    // TODO: search in both local and "global" library search paths (on linux use ./libname.so and if failed, libname.so)
+
+    std::string outputModuleName = std::string("./") + std::string(OUTPUT_MODULE_NAME_PREFIX) + GetStringOption(CLIOPT_OUTPUT_MODULE);
+    std::string outputModuleFile = outputModuleName + std::string(SHARED_LIBRARY_SUFFIX);
+
+#ifdef _WIN32
+    m_outputModuleHandle = LoadLibrary(outputModuleFile.c_str());
+#else
+    m_outputModuleHandle = dlopen(outputModuleFile.c_str(), RTLD_LAZY);
+#endif
+    if (!m_outputModuleHandle)
+    {
+        sLog->Error("Could not load module %s!", outputModuleName.c_str());
+        return false;
+    }
+
+#ifdef _WIN32
+    RegisterLogFunc registerLogDllFunc = (RegisterLogFunc)GetProcAddress(m_outputModuleHandle, "RegisterLogger");
+#else
+    RegisterLogFunc registerLogDllFunc = (RegisterLogFunc)dlsym(m_outputModuleHandle, "RegisterLogger");
+#endif
+    if (!registerLogDllFunc)
+    {
+        sLog->Error("Output module does not recognize RegisterLogger function!");
+        return false;
+    }
+
+    registerLogDllFunc(DllLogFunc);
+
+#ifdef _WIN32
+    OutputModuleCreateFunc createOutputModuleDllFunc = (OutputModuleCreateFunc)GetProcAddress(m_outputModuleHandle, "CreateOutputModule");
+#else
+    OutputModuleCreateFunc createOutputModuleDllFunc = (OutputModuleCreateFunc)dlsym(m_outputModuleHandle, "CreateOutputModule");
+#endif
+    if (!createOutputModuleDllFunc)
+    {
+        sLog->Error("Output module does not recognize CreateInputModule function!");
+        return false;
+    }
+
+    m_outputModule = createOutputModuleDllFunc();
+    if (!m_outputModule)
+    {
+        sLog->Error("Could not create OutputModule instance!");
+        return false;
+    }
+
+    return true;
+}
+
 int Application::Run()
 {
     InitInput();
 
     GatherData();
 
-    // TODO: construct some kind of structure with all datas
+    PrepareOutput();
 
-    // TODO: pass the structure to output module
+    ProceedOutput();
+
+    // TODO: cleanup
 
     return 0;
 }

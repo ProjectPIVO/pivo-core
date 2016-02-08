@@ -6,6 +6,7 @@
 
 #include "UnitIdentifiers.h"
 #include "InputModuleFeatures.h"
+#include "OutputModuleFeatures.h"
 #include "FlatProfileStructs.h"
 #include "NormalizedData.h"
 
@@ -35,9 +36,11 @@ enum CommandLineOption
 #endif
 
 class InputModule;
+class OutputModule;
 
 typedef void(*RegisterLogFunc)(void(*)(int, const char*, ...));
 typedef InputModule*(*InputModuleCreateFunc)();
+typedef OutputModule*(*OutputModuleCreateFunc)();
 
 class Application
 {
@@ -94,8 +97,10 @@ class Application
         // Parse command line options, fill maps
         bool ParseCommandLineOpts(int argc, char** argv);
 
-        // Create library handle
+        // Create library handle for input module
         bool CreateInputModuleHandle();
+        // Create library handle for output module
+        bool CreateOutputModuleHandle();
 
         // Initializes input module, loads supplied file, etc
         int InitInput();
@@ -123,6 +128,13 @@ class Application
         DLL_INSTANCE m_inputModuleHandle;
         // Input module reported features
         IMF_SET m_inputModuleFeatures;
+
+        // Input module instance
+        OutputModule* m_outputModule;
+        // Input module handle
+        DLL_INSTANCE m_outputModuleHandle;
+        // Input module reported features
+        OMF_SET m_outputModuleFeatures;
 
         // data prepared to be sent to output module
         NormalizedData* m_data;
