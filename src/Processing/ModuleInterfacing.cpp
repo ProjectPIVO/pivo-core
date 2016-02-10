@@ -1,6 +1,8 @@
 #include "General.h"
 #include "InputModuleFeatures.h"
 #include "InputModule.h"
+#include "OutputModuleFeatures.h"
+#include "OutputModule.h"
 #include "UnitIdentifiers.h"
 #include "FlatProfileStructs.h"
 #include "NormalizedData.h"
@@ -28,6 +30,9 @@ int Application::GatherData()
 {
     m_data = new NormalizedData;
 
+    m_data->classTable.assign(m_classTable.begin(), m_classTable.end());
+    m_data->functionTable.assign(m_functionTable.begin(), m_functionTable.end());
+
     // set input file (directory) path
     m_data->inputProfDataFile = GetStringOption(CLIOPT_INPUT_PATH);
     // set input binary file path
@@ -50,7 +55,7 @@ int Application::PrepareOutput()
 
 int Application::ProceedOutput()
 {
-    //
+    m_outputModule->VisualizeData(m_data);
 
     return 0;
 }
