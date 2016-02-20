@@ -3,6 +3,13 @@
 
 #define NO_CLASS -1
 
+enum FunctionEntryType
+{
+    FET_TEXT = 't',       // generally the only type we are interested into - functions defined in measured application
+    FET_MISC = 'x',       // functions from other parts of system, glibc, syscalls, ...
+    // for now, there are no more types we are interested into
+};
+
 struct ClassEntry
 {
     // Class/struct name
@@ -19,6 +26,8 @@ struct FunctionEntry
     std::string name;
     // If function (method) belongs to class, this is the index to class table
     int32_t classId;
+    // type of function (mapped using symbol output)
+    FunctionEntryType functionType;
 };
 
 // structure used for sorting std::vector of FunctionEntry by address

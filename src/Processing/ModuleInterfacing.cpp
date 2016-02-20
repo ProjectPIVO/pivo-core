@@ -68,6 +68,21 @@ int Application::PrepareOutput()
         // then, sort by time spent, and use stable sort to not scramble already sorted entires
         // within same "bucket" of time quantum
         std::stable_sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileTimeSortPredicate());
+
+        double totalTime = 0.0;
+
+        // sum of time spent in whole program
+        for (int i = 0; i < m_data->flatProfile.size(); i++)
+            totalTime += m_data->flatProfile[i].timeTotal;
+
+        // calculate additional fields
+        for (int i = 0; i < m_data->flatProfile.size(); i++)
+        {
+            if (totalTime > 0.0)
+                m_data->flatProfile[i].timeTotalPct = m_data->flatProfile[i].timeTotal / totalTime;
+            else
+                m_data->flatProfile[i].timeTotalPct = 0.0;
+        }
     }
 
     return 0;
