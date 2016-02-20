@@ -6,9 +6,9 @@ struct FlatProfileRecord
     // function index in function table
     uint32_t functionId;
     // time percentage spent in this function
-    float timeTotalPct;
+    double timeTotalPct;
     // absolute time spent here (dimension is set elsewhere)
-    uint32_t timeTotal;
+    double timeTotal;
     // call count (may have been recorded as well, otherwise zero)
     uint32_t callCount;
 };

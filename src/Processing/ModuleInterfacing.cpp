@@ -10,6 +10,8 @@
 #include "InputModuleFeatures.h"
 #include "Application.h"
 
+#include <algorithm>
+
 int Application::InitInput()
 {
     // use module load method to load specified files (profiling output and binary file, if specified)
@@ -22,6 +24,15 @@ int Application::InitInput()
     // request class and function tables
     m_inputModule->GetClassTable(m_classTable);
     m_inputModule->GetFunctionTable(m_functionTable);
+
+    return 0;
+}
+
+int Application::InitOutput()
+{
+    // TODO: some validity check calls to output module, for i.e. present templates, etc.
+
+    m_outputModule->ReportFeatures(m_outputModuleFeatures);
 
     return 0;
 }
@@ -48,7 +59,16 @@ int Application::GatherData()
 
 int Application::PrepareOutput()
 {
-    //
+    // Process flat view data, if supported by both input and output module
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
+    {
+        // at first, sort by call count - that's our secondary criteria
+        std::sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileCallCountSortPredicate());
+
+        // then, sort by time spent, and use stable sort to not scramble already sorted entires
+        // within same "bucket" of time quantum
+        std::stable_sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileTimeSortPredicate());
+    }
 
     return 0;
 }

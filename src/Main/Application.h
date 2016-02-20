@@ -104,6 +104,8 @@ class Application
 
         // Initializes input module, loads supplied file, etc
         int InitInput();
+        // Initializes output module, mainly just checks presence and validity
+        int InitOutput();
         // Gathers data from input module - different views, metadata
         int GatherData();
         // Prepares output structures, analyzes gatehered data and creates data for specific views

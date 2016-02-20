@@ -219,15 +219,17 @@ bool Application::CreateOutputModuleHandle()
 
 int Application::Run()
 {
-    InitInput();
+    if (InitInput() != 0 ||
+        InitOutput() != 0 ||
+        GatherData() != 0 ||
+        PrepareOutput() != 0 ||
+        ProceedOutput() != 0)
+    {
+        // TODO: report error, cleanup
+        return 1;
+    }
 
-    GatherData();
-
-    PrepareOutput();
-
-    ProceedOutput();
-
-    // TODO: cleanup
+    // TODO: cleanup, finalize, print statistics?
 
     return 0;
 }

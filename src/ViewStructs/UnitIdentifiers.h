@@ -13,6 +13,8 @@ struct FunctionEntry
 {
     // entry address
     uint64_t address;
+    // address scaled according to i.e. sampling frequency (may not be used)
+    uint64_t scaled_address;
     // Function/method name
     std::string name;
     // If function (method) belongs to class, this is the index to class table
