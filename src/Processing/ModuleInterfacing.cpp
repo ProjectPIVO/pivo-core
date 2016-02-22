@@ -54,6 +54,10 @@ int Application::GatherData()
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE))
         m_inputModule->GetFlatProfileData(m_data->flatProfile);
 
+    // resolve call graph, if available
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH))
+        m_inputModule->GetCallGraphMap(m_data->callGraph);
+
     return 0;
 }
 

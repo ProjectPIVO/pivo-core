@@ -2,6 +2,8 @@
 #define PIVO_NORMALIZED_DATA_H
 
 #include "UnitIdentifiers.h"
+#include "FlatProfileStructs.h"
+#include "CallGraphStructs.h"
 
 // Structure consisting of all gathered data, later passed to output module
 struct NormalizedData
@@ -21,6 +23,8 @@ struct NormalizedData
 
     // flat profile data (containing no context, just times and call counts with functions)
     std::vector<FlatProfileRecord> flatProfile;
+    // call graph data (containing caller-callee data with call count)
+    CallGraphMap callGraph;
 };
 
 #endif

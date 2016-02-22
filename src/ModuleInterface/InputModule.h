@@ -6,6 +6,7 @@
 #include "UnitIdentifiers.h"
 #include "InputModuleFeatures.h"
 #include "FlatProfileStructs.h"
+#include "CallGraphStructs.h"
 
 class InputModule
 {
@@ -22,6 +23,8 @@ class InputModule
 
         // Retrieves flat profile data
         virtual void GetFlatProfileData(std::vector<FlatProfileRecord> &dst) = 0;
+        // Retrieves call graph map data
+        virtual void GetCallGraphMap(CallGraphMap &dst) = 0;
 
     protected:
         //
