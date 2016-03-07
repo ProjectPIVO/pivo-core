@@ -11,6 +11,10 @@ struct FlatProfileRecord
     double timeTotal;
     // call count (may have been recorded as well, otherwise zero)
     uint32_t callCount;
+    // inclusive time spent by execution
+    double timeTotalInclusive;
+    // inclusive time percentage spent by execution
+    double timeTotalInclusivePct;
 };
 
 // structure used for sorting std::vector of FlatProfileRecord by time spent
