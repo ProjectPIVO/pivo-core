@@ -13,6 +13,8 @@
 
 #include <stack>
 #include <algorithm>
+#include <sstream>
+#include <iomanip>
 
 int Application::InitInput()
 {
@@ -71,11 +73,11 @@ int Application::PrepareOutput()
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
     {
         // sum of time spent in whole program
-        for (int i = 0; i < m_data->flatProfile.size(); i++)
+        for (size_t i = 0; i < m_data->flatProfile.size(); i++)
             totalTime += m_data->flatProfile[i].timeTotal;
 
         // calculate additional fields - percentage of time spent, etc.
-        for (int i = 0; i < m_data->flatProfile.size(); i++)
+        for (size_t i = 0; i < m_data->flatProfile.size(); i++)
         {
             if (totalTime > 0.0)
                 m_data->flatProfile[i].timeTotalPct = m_data->flatProfile[i].timeTotal / totalTime;
@@ -178,10 +180,10 @@ int Application::PrepareOutput()
         }
 
         // we won't need this macro anymore
-        #undef IS_VISITED
+        #undef IS_IN_STACK
 
         // go through all nodes and calculate percentage of inclusive time
-        for (int i = 0; i < m_data->flatProfile.size(); i++)
+        for (size_t i = 0; i < m_data->flatProfile.size(); i++)
         {
             if (m_data->flatProfile[i].timeTotalInclusive > 0)
                 m_data->flatProfile[i].timeTotalInclusivePct = m_data->flatProfile[i].timeTotalInclusive / totalTime;
@@ -198,6 +200,20 @@ int Application::PrepareOutput()
         // within same "bucket" of time quantum
         std::stable_sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileTimeSortPredicate());
     }
+
+    // Fill basic info (summary) map
+    m_data->basicInfo["Binary file"] = GetStringOption(CLIOPT_INPUT_BINARY_PATH);
+    m_data->basicInfo["Input path"] = GetStringOption(CLIOPT_INPUT_PATH);
+    m_data->basicInfo["Analyzed function count"] = std::to_string(m_functionTable.size());
+
+    std::ostringstream out;
+    out << std::setprecision(2) << std::fixed << totalTime;
+    m_data->basicInfo["Total execution time"] = out.str() + "s";
+
+    m_data->basicInfo["Input module name"] = m_inputModule->ReportName();
+    m_data->basicInfo["Input module version"] = m_inputModule->ReportVersion();
+    m_data->basicInfo["Output module name"] = m_outputModule->ReportName();
+    m_data->basicInfo["Output module version"] = m_outputModule->ReportVersion();
 
     return 0;
 }

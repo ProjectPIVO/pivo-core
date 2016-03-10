@@ -13,6 +13,9 @@ struct NormalizedData
     // name of binary file (if supplied)
     std::string inputBinaryFile;
 
+    // basic information about profiling session, etc.
+    std::map<std::string, std::string> basicInfo;
+
     // output path
     std::string outputPath;
 

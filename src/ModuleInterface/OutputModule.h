@@ -11,6 +11,10 @@
 class OutputModule
 {
     public:
+        // Reports module name
+        virtual const char* ReportName() = 0;
+        // Reports module version
+        virtual const char* ReportVersion() = 0;
         // Reports module features
         virtual void ReportFeatures(OMF_SET &set) = 0;
 

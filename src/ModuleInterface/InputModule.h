@@ -11,6 +11,10 @@
 class InputModule
 {
     public:
+        // Reports module name
+        virtual const char* ReportName() = 0;
+        // Reports module version
+        virtual const char* ReportVersion() = 0;
         // Reports module features
         virtual void ReportFeatures(IMF_SET &set) = 0;
         // Loads file into memory for future processing, return true on success
