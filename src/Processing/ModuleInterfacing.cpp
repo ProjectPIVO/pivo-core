@@ -125,18 +125,18 @@ int Application::PrepareOutput()
         // multiplier stack for applying the right multiplicator during current DFS iteration
         std::stack<double> multiplierStack;
 
-        NodeSet inStackNodes;
+        NodeSet visitedNodes;
 
         // define macro for detecting node presence in already traversed nodes
-        #define IS_IN_STACK(x) (inStackNodes.find(x) != inStackNodes.end())
+        #define IS_VISITED(x) (visitedNodes.find(x) != visitedNodes.end())
 
         for (auto itr : nodes)
         {
             node = itr;
 
-            inStackNodes.clear();
+            visitedNodes.clear();
             // close our node to not be traversed again during this iteration
-            inStackNodes.insert(node);
+            visitedNodes.insert(node);
 
             // this time will be distributed during DFS traversal
             double timesrc = m_data->flatProfile[node].timeTotal;
@@ -158,18 +158,16 @@ int Application::PrepareOutput()
                 double mult = multiplierStack.top();
                 multiplierStack.pop();
 
-                inStackNodes.erase(adnode);
-
                 // push adjacent nodes onto stack
                 NodeSet* adj = cgraph.getAdjacentNodes(adnode);
                 for (auto aitr : *adj)
                 {
                     // if they're already on stack, ignore them (for now)
-                    if (IS_IN_STACK(aitr))
+                    if (IS_VISITED(aitr))
                         continue;
 
                     // push to stack, and calculate multiplier
-                    inStackNodes.insert(aitr);
+                    visitedNodes.insert(aitr);
                     dfsStack.push(aitr);
                     multiplierStack.push(mult * ((double)m_data->callGraph[aitr][adnode] ) / ((double)m_data->flatProfile[adnode].callCount));
                 }
@@ -180,7 +178,7 @@ int Application::PrepareOutput()
         }
 
         // we won't need this macro anymore
-        #undef IS_IN_STACK
+        #undef IS_VISITED
 
         // go through all nodes and calculate percentage of inclusive time
         for (size_t i = 0; i < m_data->flatProfile.size(); i++)
