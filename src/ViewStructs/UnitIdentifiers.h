@@ -7,7 +7,10 @@ enum FunctionEntryType
 {
     FET_TEXT = 't',       // generally the only type we are interested into - functions defined in measured application
     FET_MISC = 'x',       // functions from other parts of system, glibc, syscalls, ...
+    FET_KERNEL = '9',     // custom; symbols loaded as kernel modules
     // for now, there are no more types we are interested into
+
+    FET_DONTCARE = ' '    // special type used for "do not override" option
 };
 
 struct ClassEntry
