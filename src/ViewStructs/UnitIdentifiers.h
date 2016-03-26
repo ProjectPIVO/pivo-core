@@ -7,6 +7,10 @@ enum FunctionEntryType
 {
     FET_TEXT = 't',       // generally the only type we are interested into - functions defined in measured application
     FET_MISC = 'x',       // functions from other parts of system, glibc, syscalls, ...
+    FET_READONLY = 'r',   // symbols in read-only section
+    FET_READONLY_2 = 'R',
+    FET_BSS = 'b',        // symbols in BSS section
+    FET_BSS2 = 'B',
     FET_KERNEL = '9',     // custom; symbols loaded as kernel modules
     // for now, there are no more types we are interested into
 
