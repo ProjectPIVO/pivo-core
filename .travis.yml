@@ -1,0 +1,12 @@
+language: cpp
+
+before_install:
+  - echo "yes" | sudo add-apt-repository ppa:kalakris/cmake
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install build-essential libtool gcc-4.8 g++-4.8 make cmake openssl
+
+install:
+  - cmake .
+
+script:
+  - make
