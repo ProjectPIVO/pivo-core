@@ -5,6 +5,7 @@ enum InputModuleFeatures
 {
     IMF_FLAT_PROFILE = 0,
     IMF_CALL_GRAPH = 1,
+    IMF_INCLUSIVE_TIME = 2,
     MAX_IMF
 };
 

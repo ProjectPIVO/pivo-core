@@ -83,15 +83,22 @@ int Application::PrepareOutput()
                 m_data->flatProfile[i].timeTotalPct = m_data->flatProfile[i].timeTotal / totalTime;
             else
                 m_data->flatProfile[i].timeTotalPct = 0.0;
+        }
 
-            // inclusive time is initially total time spent in this function call
-            m_data->flatProfile[i].timeTotalInclusive = m_data->flatProfile[i].timeTotal;
-            m_data->flatProfile[i].timeTotalInclusivePct = 0.0;
+        // when the module itself does not support inclusive time calculation, nullify it and calculate it later
+        if (!IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME))
+        {
+            for (size_t i = 0; i < m_data->flatProfile.size(); i++)
+            {
+                // inclusive time is initially total time spent in this function call
+                m_data->flatProfile[i].timeTotalInclusive = m_data->flatProfile[i].timeTotal;
+                m_data->flatProfile[i].timeTotalInclusivePct = 0.0;
+            }
         }
     }
 
-    // Deduce inclusive time, if both flat profile and call graph are supported
-    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH))
+    // Deduce inclusive time, if both flat profile and call graph are supported, AND the module itself does not have support for this feature
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH) && !IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME))
     {
         Graph cgraph;
 
