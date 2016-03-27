@@ -1,9 +1,11 @@
-# Project PIVO
+ï»¿# Project PIVO
+
+[![Build Status](https://travis-ci.org/ProjectPIVO/pivo-core.svg?branch=master)](https://travis-ci.org/ProjectPIVO/pivo-core)
 
 Project PIVO (Profiler-Independent Visual Output) - implementation part of bachelor thesis.
 
-Developed by: Martin Úbl (A13B0453P)  
-Supervised by: Ing. Jindøich Skupa  
+Developed by: Martin Ãšbl (A13B0453P)  
+Supervised by: Ing. JindÅ™ich Skupa  
 University of West Bohemia  
 The Faculty of Applied Sciences, Department of Computer Science and Engineering
 
