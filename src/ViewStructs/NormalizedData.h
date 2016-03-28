@@ -4,6 +4,7 @@
 #include "UnitIdentifiers.h"
 #include "FlatProfileStructs.h"
 #include "CallGraphStructs.h"
+#include "CallTreeStructs.h"
 
 // Structure consisting of all gathered data, later passed to output module
 struct NormalizedData
@@ -28,6 +29,8 @@ struct NormalizedData
     std::vector<FlatProfileRecord> flatProfile;
     // call graph data (containing caller-callee data with call count)
     CallGraphMap callGraph;
+    // call tree data (containing tree structure with times count)
+    CallTreeMap callTree;
 };
 
 #endif

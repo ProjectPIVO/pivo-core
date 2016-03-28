@@ -7,6 +7,7 @@
 #include "InputModuleFeatures.h"
 #include "FlatProfileStructs.h"
 #include "CallGraphStructs.h"
+#include "CallTreeStructs.h"
 
 class InputModule
 {
@@ -29,6 +30,8 @@ class InputModule
         virtual void GetFlatProfileData(std::vector<FlatProfileRecord> &dst) = 0;
         // Retrieves call graph map data
         virtual void GetCallGraphMap(CallGraphMap &dst) = 0;
+        // Retrieves call tree map data
+        virtual void GetCallTreeMap(CallTreeMap &dst) = 0;
 
     protected:
         //

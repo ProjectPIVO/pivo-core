@@ -5,6 +5,7 @@ enum OutputModuleFeatures
 {
     OMF_FLAT_PROFILE = 0,
     OMF_CALL_GRAPH = 1,
+    OMF_CALL_TREE = 2,
     MAX_OMF
 };
 

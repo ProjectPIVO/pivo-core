@@ -62,6 +62,10 @@ int Application::GatherData()
     if (IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH))
         m_inputModule->GetCallGraphMap(m_data->callGraph);
 
+    // resolve call tree, if available
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_CALL_TREE))
+        m_inputModule->GetCallTreeMap(m_data->callTree);
+
     return 0;
 }
 
