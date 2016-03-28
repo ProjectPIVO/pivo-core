@@ -9,6 +9,8 @@ struct CallTreeNode
     double timeTotal;
     // total percentage of time (or samples) spent here
     double timeTotalPct;
+    // profiling samples count (samples or calls)
+    uint64_t sampleCount;
 
     // link to parent node
     CallTreeNode* parent;
