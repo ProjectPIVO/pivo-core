@@ -6,6 +6,9 @@
 enum FunctionEntryType
 {
     FET_TEXT = 't',       // generally the only type we are interested into - functions defined in measured application
+    FET_TEXT_2 = 'T',     // second symbol type for text section
+    FET_WEAK = 'w',       // weak symbol
+    FET_WEAK_2 = 'W',     // another weak symbol type
     FET_MISC = 'x',       // functions from other parts of system, glibc, syscalls, ...
     FET_READONLY = 'r',   // symbols in read-only section
     FET_READONLY_2 = 'R',
