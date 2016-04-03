@@ -20,6 +20,9 @@ struct NormalizedData
     // output path
     std::string outputPath;
 
+    // units of profiling
+    ProfilingUnits profilingUnit;
+
     // class table
     std::vector<ClassEntry> classTable;
     // function table

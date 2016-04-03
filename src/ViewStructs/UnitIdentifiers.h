@@ -20,6 +20,13 @@ enum FunctionEntryType
     FET_DONTCARE = ' '    // special type used for "do not override" option
 };
 
+enum ProfilingUnits
+{
+    PU_SAMPLES = 0,          // default - number of samples
+    PU_TIME = 1,             // time in seconds
+    MAX_PU
+};
+
 struct ClassEntry
 {
     // Class/struct name

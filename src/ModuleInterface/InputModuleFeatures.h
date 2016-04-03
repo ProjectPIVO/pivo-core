@@ -7,6 +7,7 @@ enum InputModuleFeatures
     IMF_CALL_GRAPH = 1,
     IMF_INCLUSIVE_TIME = 2,
     IMF_CALL_TREE = 3,
+    IMF_USE_SECONDS = 4,        // use "seconds" as 'time' unit instead of samples
     MAX_IMF
 };
 

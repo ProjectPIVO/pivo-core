@@ -73,6 +73,12 @@ int Application::PrepareOutput()
 {
     double totalTime = 0.0;
 
+    // default unit is samples
+    m_data->profilingUnit = PU_SAMPLES;
+    // some profilers (such as gprof) may use second as unit
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_USE_SECONDS))
+        m_data->profilingUnit = PU_TIME;
+
     // Process flat view data time percentage, if supported by both input and output module
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
     {
@@ -215,9 +221,23 @@ int Application::PrepareOutput()
     m_data->basicInfo["Input path"] = GetStringOption(CLIOPT_INPUT_PATH);
     m_data->basicInfo["Analyzed function count"] = std::to_string(m_functionTable.size());
 
-    std::ostringstream out;
-    out << std::setprecision(2) << std::fixed << totalTime;
-    m_data->basicInfo["Total execution time"] = out.str() + "s";
+    switch (m_data->profilingUnit)
+    {
+        case PU_TIME:
+        {
+            std::ostringstream out;
+            out << std::setprecision(2) << std::fixed << totalTime;
+            m_data->basicInfo["Total execution time"] = out.str() + "s";
+            break;
+        }
+        case PU_SAMPLES:
+        {
+            m_data->basicInfo["Total samples"] = std::to_string((uint64_t)totalTime);
+            break;
+        }
+        default:
+            break;
+    }
 
     m_data->basicInfo["Input module name"] = m_inputModule->ReportName();
     m_data->basicInfo["Input module version"] = m_inputModule->ReportVersion();
