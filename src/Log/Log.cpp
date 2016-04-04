@@ -2,6 +2,9 @@
 #include "Log.h"
 
 #include <cstdarg>
+#include <ctime>
+#include <cstdio>
+#include <cstdlib>
 
 #define FORMAT_LOG_ARGS(buf, n) \
     va_list argList;\
@@ -74,9 +77,19 @@ void Log::PerformLog(LogLevel level, const char* str)
 
     std::unique_lock<std::mutex> lck(m_logMutex);
 
+    time_t nowtime = time(nullptr);
+    tm* tmval = localtime(&nowtime);
+
+    // prepare timestamp
+    char timestr[12];
+    timestr[0] = '[';
+    int len = strftime(&timestr[1], 9, "%H:%M:%S", tmval);
+    strncpy(&timestr[9], "] ", 3);
+
     // if log file is present, log to file also
     if (m_outFile)
     {
+        fputs(timestr, m_outFile);
         fputs(str, m_outFile);
         fputs("\n", m_outFile);
     }
@@ -87,9 +100,9 @@ void Log::PerformLog(LogLevel level, const char* str)
 
     // output warnings and errors to stderr stream, other logs to stdout
     if (level <= LOG_WARNING)
-        std::cerr << str << std::endl;
+        std::cerr << timestr << str << std::endl;
     else
-        std::cout << str << std::endl;
+        std::cout << timestr << str << std::endl;
 }
 
 void DllLogFunc(int level, const char* str, ...)
