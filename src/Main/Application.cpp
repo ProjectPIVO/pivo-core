@@ -94,13 +94,28 @@ bool Application::Init(int argc, char** argv)
             sLog->Error("Could not open file %s for writing!", GetStringOption(CLIOPT_LOG_FILE).c_str());
     }
 
-    // TODO: verify input file has been specified
+    // verify input file has been specified
+    if (!IsOptionSet(CLIOPT_INPUT_PATH))
+    {
+        sLog->Error("Input file or directory was not specified! Use -i <path> to specify input path");
+        return false;
+    }
 
     // TODO: verify input file exists
 
-    // TODO: verify input and output module has been specified
+    // verify input and output module has been specified
+    if (!IsOptionSet(CLIOPT_INPUT_MODULE))
+    {
+        sLog->Error("Input module was not specified! Use -im <name> to choose one");
+        return false;
+    }
+    if (!IsOptionSet(CLIOPT_OUTPUT_MODULE))
+    {
+        sLog->Error("Output module was not specified! Use -om <name> to choose one");
+        return false;
+    }
 
-    // TODO: verify presence of input and output modules
+    // Create input and output module instance
 
     if (!CreateInputModuleHandle())
         return false;
@@ -118,6 +133,9 @@ bool Application::CreateInputModuleHandle()
 
     std::string inputModuleName = std::string("./") + std::string(INPUT_MODULE_NAME_PREFIX) + GetStringOption(CLIOPT_INPUT_MODULE);
     std::string inputModuleFile = inputModuleName + std::string(SHARED_LIBRARY_SUFFIX);
+
+    sLog->Verbose("Creating input module '%s'", GetStringOption(CLIOPT_INPUT_MODULE).c_str());
+    sLog->Verbose("Input module path: %s", inputModuleFile.c_str());
 
 #ifdef _WIN32
     m_inputModuleHandle = LoadLibrary(inputModuleFile.c_str());
@@ -161,6 +179,8 @@ bool Application::CreateInputModuleHandle()
         return false;
     }
 
+    sLog->Info("Input module '%s' successfully created", GetStringOption(CLIOPT_INPUT_MODULE).c_str());
+
     return true;
 }
 
@@ -171,6 +191,9 @@ bool Application::CreateOutputModuleHandle()
 
     std::string outputModuleName = std::string("./") + std::string(OUTPUT_MODULE_NAME_PREFIX) + GetStringOption(CLIOPT_OUTPUT_MODULE);
     std::string outputModuleFile = outputModuleName + std::string(SHARED_LIBRARY_SUFFIX);
+
+    sLog->Verbose("Creating output module '%s'", GetStringOption(CLIOPT_OUTPUT_MODULE).c_str());
+    sLog->Verbose("Output module path: %s", outputModuleFile.c_str());
 
 #ifdef _WIN32
     m_outputModuleHandle = LoadLibrary(outputModuleFile.c_str());
@@ -214,6 +237,8 @@ bool Application::CreateOutputModuleHandle()
         return false;
     }
 
+    sLog->Info("Output module '%s' successfully created", GetStringOption(CLIOPT_OUTPUT_MODULE).c_str());
+
     return true;
 }
 
@@ -225,11 +250,13 @@ int Application::Run()
         PrepareOutput() != 0 ||
         ProceedOutput() != 0)
     {
-        // TODO: report error, cleanup
+        sLog->Error("Fatal error occurred during execution, exiting");
         return 1;
     }
 
     // TODO: cleanup, finalize, print statistics?
+
+    sLog->Info("All procedures finished without error");
 
     return 0;
 }

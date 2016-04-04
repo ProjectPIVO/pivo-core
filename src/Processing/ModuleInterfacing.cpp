@@ -10,6 +10,7 @@
 #include "InputModuleFeatures.h"
 #include "Application.h"
 #include "Graph.h"
+#include "Log.h"
 
 #include <stack>
 #include <algorithm>
@@ -18,6 +19,8 @@
 
 int Application::InitInput()
 {
+    sLog->Verbose("Initializing input module");
+
     // use module load method to load specified files (profiling output and binary file, if specified)
     if (!m_inputModule->LoadFile(GetStringOption(CLIOPT_INPUT_PATH).c_str(), GetStringOption(CLIOPT_INPUT_BINARY_PATH).c_str()))
         return 1;
@@ -34,6 +37,8 @@ int Application::InitInput()
 
 int Application::InitOutput()
 {
+    sLog->Verbose("Initializing output module");
+
     // TODO: some validity check calls to output module, for i.e. present templates, etc.
 
     m_outputModule->ReportFeatures(m_outputModuleFeatures);
@@ -43,6 +48,8 @@ int Application::InitOutput()
 
 int Application::GatherData()
 {
+    sLog->Verbose("Gathering data from input module");
+
     m_data = new NormalizedData;
 
     m_data->classTable.assign(m_classTable.begin(), m_classTable.end());
@@ -56,32 +63,48 @@ int Application::GatherData()
 
     // resolve flat profile, if available
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE))
+    {
+        sLog->Verbose("Retrieving flat profile data");
         m_inputModule->GetFlatProfileData(m_data->flatProfile);
+    }
 
     // resolve call graph, if available
     if (IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH))
+    {
+        sLog->Verbose("Retrieving call graph data");
         m_inputModule->GetCallGraphMap(m_data->callGraph);
+    }
 
     // resolve call tree, if available
     if (IMF_ISSET(m_inputModuleFeatures, IMF_CALL_TREE))
+    {
+        sLog->Verbose("Retrieving call tree data");
         m_inputModule->GetCallTreeMap(m_data->callTree);
+    }
 
     return 0;
 }
 
 int Application::PrepareOutput()
 {
+    sLog->Verbose("Analyzing gathered data");
+
     double totalTime = 0.0;
 
     // default unit is samples
     m_data->profilingUnit = PU_SAMPLES;
     // some profilers (such as gprof) may use second as unit
     if (IMF_ISSET(m_inputModuleFeatures, IMF_USE_SECONDS))
+    {
+        sLog->Verbose("Switching profiling unit to seconds");
         m_data->profilingUnit = PU_TIME;
+    }
 
     // Process flat view data time percentage, if supported by both input and output module
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
     {
+        sLog->Verbose("Analyzing flat profile data");
+
         // sum of time spent in whole program
         for (size_t i = 0; i < m_data->flatProfile.size(); i++)
             totalTime += m_data->flatProfile[i].timeTotal;
@@ -110,6 +133,8 @@ int Application::PrepareOutput()
     // Deduce inclusive time, if both flat profile and call graph are supported, AND the module itself does not have support for this feature
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH) && !IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME))
     {
+        sLog->Verbose("Calculating inclusive time");
+
         Graph cgraph;
 
         // go through callGraph arcs, and build directed graph
@@ -208,6 +233,8 @@ int Application::PrepareOutput()
     // Process flat view data function order, if supported by both input and output module
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
     {
+        sLog->Verbose("Sorting flat profile vector");
+
         // at first, sort by call count - that's our secondary criteria
         std::sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileCallCountSortPredicate());
 
@@ -215,6 +242,8 @@ int Application::PrepareOutput()
         // within same "bucket" of time quantum
         std::stable_sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileTimeSortPredicate());
     }
+
+    sLog->Verbose("Filling summary block");
 
     // Fill basic info (summary) map
     m_data->basicInfo["Binary file"] = GetStringOption(CLIOPT_INPUT_BINARY_PATH);
@@ -249,6 +278,8 @@ int Application::PrepareOutput()
 
 int Application::ProceedOutput()
 {
+    sLog->Verbose("Passing gathered data to output module");
+
     m_outputModule->VisualizeData(m_data);
 
     return 0;
