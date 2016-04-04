@@ -81,10 +81,11 @@ void Log::PerformLog(LogLevel level, const char* str)
     tm* tmval = localtime(&nowtime);
 
     // prepare timestamp
-    char timestr[12];
+    char timestr[16];
     timestr[0] = '[';
     int len = strftime(&timestr[1], 9, "%H:%M:%S", tmval);
-    strncpy(&timestr[9], "] ", 3);
+    strncpy(&timestr[9], "][ ] ", 6);
+    timestr[11] = logLevelChars[level];
 
     // if log file is present, log to file also
     if (m_outFile)

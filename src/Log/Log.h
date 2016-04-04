@@ -14,6 +14,17 @@ enum LogLevel
     LOG_INFO = 3,
     LOG_VERBOSE = 4,
     LOG_DEBUG = 5,
+
+    MAX_LOG_LEVEL
+};
+
+static const char logLevelChars[MAX_LOG_LEVEL] = {
+    '0',    // off, not used at all
+    'E',    // LOG_ERROR
+    'W',    // LOG_WARNING
+    'I',    // LOG_INFO
+    'V',    // LOG_VERBOSE
+    'D'     // LOG_DEBUG
 };
 
 void DllLogFunc(int level, const char* str, ...);
