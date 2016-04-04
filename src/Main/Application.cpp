@@ -54,9 +54,9 @@ void printProgramInfo()
     std::cout << "version " << PIVO_CORE_VERSION_MAJOR << "." << PIVO_CORE_VERSION_MINOR;
 
     if (strlen(PIVO_CORE_VERSION_NOTE) > 0)
-        std::cout << "-" << PIVO_CORE_VERSION_NOTE << std::endl;
-    else
-        std::cout << std::endl;
+        std::cout << "-" << PIVO_CORE_VERSION_NOTE;
+
+    std::cout << std::endl;
 
     std::cout << "Copyright (c) 2015-2016, Martin Ubl, ublm@students.zcu.cz" << std::endl;
     std::cout << "University of West Bohemia, Faculty of Applied Sciences" << std::endl << "Department of Computer Science and Engineering" << std::endl;
@@ -137,7 +137,7 @@ bool Application::CreateInputModuleHandle()
 #endif
     if (!registerLogDllFunc)
     {
-        sLog->Error("Input module does not recognize RegisterLogger function!");
+        sLog->Error("Input module does not implement RegisterLogger function!");
         return false;
     }
 
@@ -150,7 +150,7 @@ bool Application::CreateInputModuleHandle()
 #endif
     if (!createInputModuleDllFunc)
     {
-        sLog->Error("Input module does not recognize CreateInputModule function!");
+        sLog->Error("Input module does not implement CreateInputModule function!");
         return false;
     }
 
@@ -190,7 +190,7 @@ bool Application::CreateOutputModuleHandle()
 #endif
     if (!registerLogDllFunc)
     {
-        sLog->Error("Output module does not recognize RegisterLogger function!");
+        sLog->Error("Output module does not implement RegisterLogger function!");
         return false;
     }
 
@@ -203,7 +203,7 @@ bool Application::CreateOutputModuleHandle()
 #endif
     if (!createOutputModuleDllFunc)
     {
-        sLog->Error("Output module does not recognize CreateInputModule function!");
+        sLog->Error("Output module does not implement CreateOutputModule function!");
         return false;
     }
 
