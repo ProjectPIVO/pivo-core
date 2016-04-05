@@ -11,7 +11,7 @@ The Faculty of Applied Sciences, Department of Computer Science and Engineering
 
 ## Dependencies
 
-- Platform-dependent build system (gcc + make, Visual Studio, etc.)
+- Platform-specific build system (gcc + make, Visual Studio, etc.)
 - CMake
 - more dependencies relies on your module selection
 
@@ -66,6 +66,7 @@ and relative)
 - `-im` - (mandatory) specifies input module (gprof, perf, dummy, ..)
 - `-om` - (mandatory) specifies output module (html, ..)
 - `-i` - (mandatory) specifies input file, in most cases, the profiler output (gmon.out, perf.data, ..)
+- `-o` - path for generating output (default empty = current working directory)
 - `-b` - specifies executable file that was analysed using profiling tool
 - `-ll` - log level (0 = OFF, 1 = ERROR, 2 = WARNING, 3 = INFO, 4 = VERBOSE, 5 = DEBUG) (default 2 = WARNING)
 - `-lf` - log file (default off)
