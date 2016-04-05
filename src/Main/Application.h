@@ -113,6 +113,9 @@ class Application
         // Sends processed structures to output module for generating output
         int ProceedOutput();
 
+        // Fills summary block with general information
+        void FillSummaryBlock(double totalTime);
+
     private:
         // map of command line options
         std::map<CommandLineOption, CommandLineOptionValue> m_cliOpts;

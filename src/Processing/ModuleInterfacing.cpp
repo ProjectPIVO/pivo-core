@@ -95,26 +95,8 @@ int Application::GatherData()
     return 0;
 }
 
-int Application::PrepareOutput()
+void Application::FillSummaryBlock(double totalTime)
 {
-    sLog->Info("Analyzing gathered data");
-
-    Analyzer dataAnalyzer(m_data);
-
-    double totalTime = 0.0;
-
-    // Process flat view data time percentage, if supported by both input and output module
-    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
-        totalTime = dataAnalyzer.InitializeTimeAnalysis(!IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME));
-
-    // Deduce inclusive time, if both flat profile and call graph are supported, AND the module itself does not have support for this feature
-    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH) && !IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME))
-        dataAnalyzer.CalculateInclusiveTime();
-
-    // Process flat view data function order, if supported by both input and output module
-    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
-        dataAnalyzer.FinalizeFlatProfileTable();
-
     sLog->Verbose("Filling summary block");
 
     // Fill basic info (summary) map
@@ -144,6 +126,29 @@ int Application::PrepareOutput()
     m_data->basicInfo["Input module version"] = m_inputModule->ReportVersion();
     m_data->basicInfo["Output module name"] = m_outputModule->ReportName();
     m_data->basicInfo["Output module version"] = m_outputModule->ReportVersion();
+}
+
+int Application::PrepareOutput()
+{
+    sLog->Info("Analyzing gathered data");
+
+    Analyzer dataAnalyzer(m_data);
+
+    double totalTime = 0.0;
+
+    // Process flat view data time percentage, if supported by both input and output module
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
+        totalTime = dataAnalyzer.InitializeTimeAnalysis(!IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME));
+
+    // Deduce inclusive time, if both flat profile and call graph are supported, AND the module itself does not have support for this feature
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH) && !IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME))
+        dataAnalyzer.CalculateInclusiveTime();
+
+    // Process flat view data function order, if supported by both input and output module
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
+        dataAnalyzer.FinalizeFlatProfileTable();
+
+    FillSummaryBlock(totalTime);
 
     return 0;
 }
