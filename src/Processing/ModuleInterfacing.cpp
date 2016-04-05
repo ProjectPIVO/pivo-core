@@ -11,9 +11,8 @@
 #include "Application.h"
 #include "Graph.h"
 #include "Log.h"
+#include "Analyzer.h"
 
-#include <stack>
-#include <algorithm>
 #include <sstream>
 #include <iomanip>
 
@@ -63,6 +62,15 @@ int Application::GatherData()
 
     m_data->outputPath = GetStringOption(CLIOPT_OUTPUT_PATH);
 
+    // default unit is samples
+    m_data->profilingUnit = PU_SAMPLES;
+    // some profilers (such as gprof) may use second as unit
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_USE_SECONDS))
+    {
+        sLog->Verbose("Switching profiling unit to seconds");
+        m_data->profilingUnit = PU_TIME;
+    }
+
     // resolve flat profile, if available
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE))
     {
@@ -91,159 +99,21 @@ int Application::PrepareOutput()
 {
     sLog->Info("Analyzing gathered data");
 
-    double totalTime = 0.0;
+    Analyzer dataAnalyzer(m_data);
 
-    // default unit is samples
-    m_data->profilingUnit = PU_SAMPLES;
-    // some profilers (such as gprof) may use second as unit
-    if (IMF_ISSET(m_inputModuleFeatures, IMF_USE_SECONDS))
-    {
-        sLog->Verbose("Switching profiling unit to seconds");
-        m_data->profilingUnit = PU_TIME;
-    }
+    double totalTime = 0.0;
 
     // Process flat view data time percentage, if supported by both input and output module
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
-    {
-        sLog->Verbose("Analyzing flat profile data");
-
-        // sum of time spent in whole program
-        for (size_t i = 0; i < m_data->flatProfile.size(); i++)
-            totalTime += m_data->flatProfile[i].timeTotal;
-
-        // calculate additional fields - percentage of time spent, etc.
-        for (size_t i = 0; i < m_data->flatProfile.size(); i++)
-        {
-            if (totalTime > 0.0)
-                m_data->flatProfile[i].timeTotalPct = m_data->flatProfile[i].timeTotal / totalTime;
-            else
-                m_data->flatProfile[i].timeTotalPct = 0.0;
-        }
-
-        // when the module itself does not support inclusive time calculation, nullify it and calculate it later
-        if (!IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME))
-        {
-            for (size_t i = 0; i < m_data->flatProfile.size(); i++)
-            {
-                // inclusive time is initially total time spent in this function call
-                m_data->flatProfile[i].timeTotalInclusive = m_data->flatProfile[i].timeTotal;
-                m_data->flatProfile[i].timeTotalInclusivePct = 0.0;
-            }
-        }
-    }
+        totalTime = dataAnalyzer.InitializeTimeAnalysis(!IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME));
 
     // Deduce inclusive time, if both flat profile and call graph are supported, AND the module itself does not have support for this feature
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && IMF_ISSET(m_inputModuleFeatures, IMF_CALL_GRAPH) && !IMF_ISSET(m_inputModuleFeatures, IMF_INCLUSIVE_TIME))
-    {
-        sLog->Verbose("Calculating inclusive time");
-
-        Graph cgraph;
-
-        // go through callGraph arcs, and build directed graph
-        for (auto itr : m_data->callGraph)
-        {
-            // add nodes in reverse direction - this graph means "node X adds time to node Y"
-            for (auto sitr : itr.second)
-                cgraph.addEdge(sitr.first, itr.first);
-        }
-
-        // find strongly connected components to detect i.e. recursion
-        cgraph.findSCC();
-
-        // retrieve nodes for future operations
-        NodeSet nodes;
-        nodeid_t node;
-        cgraph.getNodes(&nodes);
-
-        /* TODO for far future: substitute this algorithm with some more efficient.
-         * For now, the inclusive time value is resolved using DFS expanded from each node,
-         * which is sufficiently quick for most cases; however, there are more efficient
-         * algorithms, such as finding leaves (O(n)), and expanding i.e. using DFS for just leaves (O(n)),
-         * but resulting time would not be much different, as we have to find those leaves first,
-         * and due to count of graph nodes, it's not a priority to do that rather than DFS expand
-         * for all nodes
-         */
-
-        // standard DFS stack holding node IDs (function IDs, indexes in function table and flat profile table)
-        std::stack<nodeid_t> dfsStack;
-        // multiplier stack for applying the right multiplicator during current DFS iteration
-        std::stack<double> multiplierStack;
-
-        NodeSet visitedNodes;
-
-        // define macro for detecting node presence in already traversed nodes
-        #define IS_VISITED(x) (visitedNodes.find(x) != visitedNodes.end())
-
-        for (auto itr : nodes)
-        {
-            node = itr;
-
-            visitedNodes.clear();
-            // close our node to not be traversed again during this iteration
-            visitedNodes.insert(node);
-
-            // this time will be distributed during DFS traversal
-            double timesrc = m_data->flatProfile[node].timeTotal;
-
-            // find adjacent nodes and push them
-            NodeSet* adj = cgraph.getAdjacentNodes(node);
-            for (auto aitr : *adj)
-            {
-                dfsStack.push(aitr);
-                multiplierStack.push(((double)m_data->callGraph[aitr][node] ) / ((double)m_data->flatProfile[node].callCount));
-            }
-
-            // DFS traversal loop
-            while (!dfsStack.empty())
-            {
-                // pop node and its multiplier
-                nodeid_t adnode = dfsStack.top();
-                dfsStack.pop();
-                double mult = multiplierStack.top();
-                multiplierStack.pop();
-
-                // push adjacent nodes onto stack
-                NodeSet* adj = cgraph.getAdjacentNodes(adnode);
-                for (auto aitr : *adj)
-                {
-                    // if they're already on stack, ignore them (for now)
-                    if (IS_VISITED(aitr))
-                        continue;
-
-                    // push to stack, and calculate multiplier
-                    visitedNodes.insert(aitr);
-                    dfsStack.push(aitr);
-                    multiplierStack.push(mult * ((double)m_data->callGraph[aitr][adnode] ) / ((double)m_data->flatProfile[adnode].callCount));
-                }
-
-                // add portion of time calculated during traversal
-                m_data->flatProfile[adnode].timeTotalInclusive += timesrc * mult;
-            }
-        }
-
-        // we won't need this macro anymore
-        #undef IS_VISITED
-
-        // go through all nodes and calculate percentage of inclusive time
-        for (size_t i = 0; i < m_data->flatProfile.size(); i++)
-        {
-            if (m_data->flatProfile[i].timeTotalInclusive > 0)
-                m_data->flatProfile[i].timeTotalInclusivePct = m_data->flatProfile[i].timeTotalInclusive / totalTime;
-        }
-    }
+        dataAnalyzer.CalculateInclusiveTime();
 
     // Process flat view data function order, if supported by both input and output module
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE) && OMF_ISSET(m_outputModuleFeatures, OMF_FLAT_PROFILE))
-    {
-        sLog->Verbose("Sorting flat profile vector");
-
-        // at first, sort by call count - that's our secondary criteria
-        std::sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileCallCountSortPredicate());
-
-        // then, sort by time spent, and use stable sort to not scramble already sorted entires
-        // within same "bucket" of time quantum
-        std::stable_sort(m_data->flatProfile.begin(), m_data->flatProfile.end(), FlatProfileTimeSortPredicate());
-    }
+        dataAnalyzer.FinalizeFlatProfileTable();
 
     sLog->Verbose("Filling summary block");
 
