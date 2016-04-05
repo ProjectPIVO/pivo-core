@@ -19,7 +19,7 @@
 
 int Application::InitInput()
 {
-    sLog->Verbose("Initializing input module");
+    sLog->Info("Initializing input module");
 
     // use module load method to load specified files (profiling output and binary file, if specified)
     if (!m_inputModule->LoadFile(GetStringOption(CLIOPT_INPUT_PATH).c_str(), GetStringOption(CLIOPT_INPUT_BINARY_PATH).c_str()))
@@ -37,7 +37,7 @@ int Application::InitInput()
 
 int Application::InitOutput()
 {
-    sLog->Verbose("Initializing output module");
+    sLog->Info("Initializing output module");
 
     // TODO: some validity check calls to output module, for i.e. present templates, etc.
 
@@ -48,7 +48,7 @@ int Application::InitOutput()
 
 int Application::GatherData()
 {
-    sLog->Verbose("Gathering data from input module");
+    sLog->Info("Gathering data from input module");
 
     m_data = new NormalizedData;
 
@@ -87,7 +87,7 @@ int Application::GatherData()
 
 int Application::PrepareOutput()
 {
-    sLog->Verbose("Analyzing gathered data");
+    sLog->Info("Analyzing gathered data");
 
     double totalTime = 0.0;
 
@@ -278,7 +278,7 @@ int Application::PrepareOutput()
 
 int Application::ProceedOutput()
 {
-    sLog->Verbose("Passing gathered data to output module");
+    sLog->Info("Passing gathered data to output module");
 
     m_outputModule->VisualizeData(m_data);
 
