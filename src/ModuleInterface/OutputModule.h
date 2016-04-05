@@ -19,7 +19,7 @@ class OutputModule
         virtual void ReportFeatures(OMF_SET &set) = 0;
 
         // Performs data visualization as implemented by the module
-        virtual void VisualizeData(NormalizedData* data) = 0;
+        virtual bool VisualizeData(NormalizedData* data) = 0;
 
     protected:
         //

@@ -61,6 +61,8 @@ int Application::GatherData()
     if (IsOptionSet(CLIOPT_INPUT_BINARY_PATH))
         m_data->inputBinaryFile = GetStringOption(CLIOPT_INPUT_BINARY_PATH);
 
+    m_data->outputPath = GetStringOption(CLIOPT_OUTPUT_PATH);
+
     // resolve flat profile, if available
     if (IMF_ISSET(m_inputModuleFeatures, IMF_FLAT_PROFILE))
     {
@@ -280,7 +282,8 @@ int Application::ProceedOutput()
 {
     sLog->Info("Passing gathered data to output module");
 
-    m_outputModule->VisualizeData(m_data);
+    if (!m_outputModule->VisualizeData(m_data))
+        return 1;
 
     return 0;
 }
