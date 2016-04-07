@@ -118,7 +118,11 @@ void Analyzer::CalculateInclusiveTime()
                 // push to stack, and calculate multiplier
                 visitedNodes.insert(aitr);
                 dfsStack.push(aitr);
-                multiplierStack.push(mult * ((double)m_data->callGraph[aitr][adnode] ) / ((double)m_data->flatProfile[adnode].callCount));
+                // when the node is in the same component, do not reduce time by call coefficient
+                if (m_graph.componentContainer.isInSameComponent(adnode, aitr))
+                    multiplierStack.push(mult);
+                else
+                    multiplierStack.push(mult * ((double)m_data->callGraph[aitr][adnode] ) / ((double)m_data->flatProfile[adnode].callCount));
             }
 
             // add portion of time calculated during traversal
