@@ -65,6 +65,8 @@ void Application::InitCommandLineOpts()
 
     AddDefaultOptionBool("--silent", CLIOPT_SILENT, false);
     AddOptionNameAlias("-s", CLIOPT_SILENT);
+
+    AddDefaultOptionBool("--help", CLIOPT_PRINTHELP, false);
 }
 
 void printProgramInfo()
@@ -81,6 +83,21 @@ void printProgramInfo()
     std::cout << "University of West Bohemia, Faculty of Applied Sciences" << std::endl << "Department of Computer Science and Engineering" << std::endl;
 
     std::cout << std::endl;
+}
+
+void printProgramHelp(char* zeroarg)
+{
+    std::cout << "Usage: " << zeroarg << " -im <module> -om <module> -i <path> ..." << std::endl << std::endl;
+    std::cout << "Valid parameters:" << std::endl
+        << "\t-im <input module> - specifies input module (mandatory)" << std::endl
+        << "\t-om <output module> - specifies output module (mandatory)" << std::endl
+        << "\t-i <input module> - specifies input module (mandatory)" << std::endl
+        << "\t-lf <file> - specifies log file (default: none)" << std::endl
+        << "\t-ll <level> - specifies log level (0 = OFF, 1 = ERROR, 2 = WARNING, 3 = INFO, 4 = VERBOSE, 5 = DEBUG) (default: 2)" << std::endl
+        << "\t-b <binary> - specifies application binary (default: none)" << std::endl
+        << "\t-o <path> - specifies output path (default: current workdir)" << std::endl
+        << "\t-s - silent, no output at all (default: off)" << std::endl
+        << "\t--help - prints this message" << std::endl;
 }
 
 bool Application::Init(int argc, char** argv)
@@ -100,6 +117,12 @@ bool Application::Init(int argc, char** argv)
     // if not in silent mode, print program info (visible in all modes)
     if (!GetBoolOption(CLIOPT_SILENT))
         printProgramInfo();
+
+    if (GetBoolOption(CLIOPT_PRINTHELP))
+    {
+        printProgramHelp(argv[0]);
+        return false;
+    }
 
     // set log parameters retained from command line
     sLog->SetSilent(GetBoolOption(CLIOPT_SILENT));
