@@ -27,6 +27,7 @@
 #include "FlatProfileStructs.h"
 #include "CallGraphStructs.h"
 #include "CallTreeStructs.h"
+#include "HeatMapStructs.h"
 
 class InputModule
 {
@@ -51,6 +52,8 @@ class InputModule
         virtual void GetCallGraphMap(CallGraphMap &dst) = 0;
         // Retrieves call tree map data
         virtual void GetCallTreeMap(CallTreeMap &dst) = 0;
+        // Retrieves heat map data
+        virtual void GetHeatMapData(TimeHistogramVector &dst) = 0;
 
     protected:
         //

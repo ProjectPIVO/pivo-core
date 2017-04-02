@@ -17,24 +17,21 @@
  * along with PIVO. If not, see <http://www.gnu.org/licenses/>.
  **/
 
-#ifndef PIVO_INPUT_MODULE_FEATURES_H
-#define PIVO_INPUT_MODULE_FEATURES_H
+#ifndef PIVO_HEATMAP_STRUCTS_H
+#define PIVO_HEATMAP_STRUCTS_H
 
-enum InputModuleFeatures
+struct VolumeHistogramEntry
 {
-    IMF_FLAT_PROFILE = 0,
-    IMF_CALL_GRAPH = 1,
-    IMF_INCLUSIVE_TIME = 2,
-    IMF_CALL_TREE = 3,
-    IMF_USE_SECONDS = 4,        // use "seconds" as 'time' unit instead of samples
-    IMF_HEAT_MAP_DATA = 5,
-    MAX_IMF
+    // total time spent in this function, exclusive only
+    double timeTotal;
+    // total inclusive time spent in this function
+    double timeTotalInclusive;
 };
 
-#define IMF_SET uint64_t
-#define IMF_CREATE(a) a = 0
-#define IMF_ADD(a,f) a = a | (1 << f)
-#define IMF_REM(a,f) a = a & ~(1 << f)
-#define IMF_ISSET(a,f) ((a & (1 << f)) != 0)
+// primary key = function ID, value = structure of histogram data
+typedef std::map<uint32_t, VolumeHistogramEntry> VolumeHistogramMap;
+
+// key = time segment ID, value = histogram for that time segment
+typedef std::vector<VolumeHistogramMap> TimeHistogramVector;
 
 #endif

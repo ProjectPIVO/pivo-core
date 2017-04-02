@@ -111,6 +111,13 @@ int Application::GatherData()
         m_inputModule->GetCallTreeMap(m_data->callTree);
     }
 
+    // resolve heat map data, if available
+    if (IMF_ISSET(m_inputModuleFeatures, IMF_HEAT_MAP_DATA))
+    {
+        sLog->Verbose("Retrieving heat map data");
+        m_inputModule->GetHeatMapData(m_data->heatMapData);
+    }
+
     return 0;
 }
 

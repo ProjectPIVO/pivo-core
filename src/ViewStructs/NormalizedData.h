@@ -24,6 +24,7 @@
 #include "FlatProfileStructs.h"
 #include "CallGraphStructs.h"
 #include "CallTreeStructs.h"
+#include "HeatMapStructs.h"
 
 // Structure consisting of all gathered data, later passed to output module
 struct NormalizedData
@@ -53,6 +54,8 @@ struct NormalizedData
     CallGraphMap callGraph;
     // call tree data (containing tree structure with times count)
     CallTreeMap callTree;
+    // heat map data (containing vector of histograms)
+    TimeHistogramVector heatMapData;
 };
 
 #endif
