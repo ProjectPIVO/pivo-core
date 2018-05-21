@@ -70,6 +70,6 @@ ENDFOREACH()
 ADD_EXECUTABLE (pivo-core ${corefiles})
 
 # link dynamic library handling routines
-IF(CMAKE_COMPILER_IS_GNUCXX)
+IF(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     TARGET_LINK_LIBRARIES(pivo-core dl)
 ENDIF()
